@@ -34,6 +34,25 @@ const getInitial = pipe(first, toUpper);
 console.log(getInitial('bob smith')) // B
 ```
 
+### `sequence`
+
+Function composition for side-effects. The resulting function returns `void`. Each function receives the same argument passed in to the generated function. Very useful for composing DOM event handlers. Functions are processed left-to-right
+
+```js
+sequence: ([a -> void]) -> a -> void
+
+const track = event => {
+    const { eventName, eventId } = event.target.dataset;
+    fetch('http://example.com/track', { method: 'POST', body: `eventName=${eventName}&eventId=${eventId}`});
+};
+const spaNavigate = event => {
+    const { href } = event.target;
+    history.push(href);
+};
+
+<a href="/foo" onClick={sequence(track, spaNavigate)} data-event-name="bar" data-event-id="1234">Foo</a>
+```
+
 ### A note on `compose` and `pipe`
 
 Why have both `compose` and `pipe`? Primarily this is a matter of taste, depending on how you like to write you compositions. `compose` comes from functional programming languages where the right-to-left application is based on mathematical foundations. Additionally, its ordering looks very similar to the naive method of passing the result of one function to the next:
