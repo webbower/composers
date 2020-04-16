@@ -76,6 +76,36 @@ console.log(isExampleDotComEmail('bob@smith.com')) // false. Wrong domain
 console.log(isExampleDotComEmail('bob@example.com')) // true
 ```
 
+### `oor`
+
+Compose predicate functions into a predicate function that returns `true` if one passed-in predicate returns `true` and no further passed-in predicates will be run. If all return `false`, the whole returned function returns `false`. Predicate functions are processed left-to-right.
+
+```js
+oor: ([a -> Boolean]) -> a -> Boolean
+
+const isUndefined = x => x === undefined;
+const isNull = x => x === null;
+
+const isNil = oor(isUndefined, isNull);
+
+console.log(isNil(1)) // false
+console.log(isNil(null)) // true
+console.log(isNil(undefined)) // true
+
+const isFalse = x => x === false;
+const isEmptyString = x => x === '';
+const isZero = x => x === 0;
+
+const isFalsey = oor(isNil, isFalse, isEmptyString, isZero);
+
+console.log(isFalsey([])); // false. Arrays are never falsey
+console.log(isFalsey(1)); // false. Non-zero numbers are not falsey
+console.log(isFalsey(null)); // true
+console.log(isFalsey(0)); // true
+console.log(isFalsey('')); // true
+console.log(isFalsey(false)); // true
+```
+
 ### A note on `compose` and `pipe`
 
 Why have both `compose` and `pipe`? Primarily this is a matter of taste, depending on how you like to write you compositions. `compose` comes from functional programming languages where the right-to-left application is based on mathematical foundations. Additionally, its ordering looks very similar to the naive method of passing the result of one function to the next:
