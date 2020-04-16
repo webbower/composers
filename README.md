@@ -53,6 +53,29 @@ const spaNavigate = event => {
 <a href="/foo" onClick={sequence(track, spaNavigate)} data-event-name="bar" data-event-id="1234">Foo</a>
 ```
 
+### `aand`
+
+Compose predicate functions into a predicate function that returns `true` if every passed-in predicate returns `true`. If just one returns `false`, the whole returned function returns `false` and no further passed-in predicates will be run. Predicate functions are processed left-to-right.
+
+```js
+aand: ([a -> Boolean]) -> a -> Boolean
+
+const isString = x => typeof x === 'string';
+const isEmail = aand(isString, x => /^[a-zA-Z0-9\._-]+@[a-zA-Z0-9\._-]+\.[a-z]{2,}$/.test(x));
+
+console.log(isEmail(1)) // false. Not a string
+console.log(isEmail('bob')) // false. Not a a valid email format
+console.log(isEmail('bob@smith.com')) // true
+
+const isDomainEmail = domain => aand(isEmail, x => x.split('@')[1] === domain);
+const isExampleDotComEmail = isDomainEmail('example.com');
+
+console.log(isExampleDotComEmail(1)) // false. Not a string
+console.log(isExampleDotComEmail('bob')) // false. Not a a valid email format
+console.log(isExampleDotComEmail('bob@smith.com')) // false. Wrong domain
+console.log(isExampleDotComEmail('bob@example.com')) // true
+```
+
 ### A note on `compose` and `pipe`
 
 Why have both `compose` and `pipe`? Primarily this is a matter of taste, depending on how you like to write you compositions. `compose` comes from functional programming languages where the right-to-left application is based on mathematical foundations. Additionally, its ordering looks very similar to the naive method of passing the result of one function to the next:
